@@ -6,12 +6,12 @@ package frc.robot.subsystems;
 
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.ClosedLoopSlot;
-import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.SparkFlex;
 
@@ -50,8 +50,9 @@ public class ClimberSubsystem extends SubsystemBase {
 
     climberConfig.encoder.positionConversionFactor(1.0);
     climberConfig.encoder.velocityConversionFactor(1.0);
-    climberConfig.closedLoop
-      .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+ climberConfig.closedLoop
+    .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+
       // Set PID values for velocity control in slot 0
       .p(CLIMBER_MOTOR_P, ClosedLoopSlot.kSlot0) // proportional
       .i(CLIMBER_MOTOR_I, ClosedLoopSlot.kSlot0) // integral
@@ -89,7 +90,7 @@ public class ClimberSubsystem extends SubsystemBase {
   //}
 
   public void setClimberVelocity(double velocity) {
-    ClimberClosedLoopController.setSetpoint(velocity, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+    ClimberClosedLoopController.setReference(velocity, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
   }
 
   public double getcClimberVelocity() {
