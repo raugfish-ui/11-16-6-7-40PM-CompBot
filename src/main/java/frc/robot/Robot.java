@@ -24,7 +24,7 @@ public class Robot extends TimedRobot {
   public static Robot getInstance() {
     return instance;
   }
-
+  
   @Override
   public void robotInit() {
     // Instantiate our RobotContainer for button bindings and autonomous choosers.
