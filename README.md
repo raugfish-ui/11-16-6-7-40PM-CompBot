@@ -29,7 +29,7 @@ Issues on Mac with running >WPIlib: simulate Robot Code
 
 
 -------------------------------------------------------------------------------------------------
-           **Updated**
+**Updated**
 - Climb.java
 - HorizontalReverseTransfer.java
 - HorizontalTransfer.java
@@ -43,7 +43,7 @@ Issues on Mac with running >WPIlib: simulate Robot Code
 - ShooterSubsystem.java
 - Robot.java
 -------------------------------------------------------------------------------------------------
-          Update Needed
+**Update Needed**
 - AutoBalanceCommand.java
 - AbsoluteDrive.java
 - AbsoluteDriveAdv.java
