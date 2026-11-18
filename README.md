@@ -49,5 +49,3 @@ Issues on Mac with running >WPIlib: simulate Robot Code
 - IntakeSubsystem.java
 - HorizontalTransferSubsystem.java
 - SwerveSubsystem.java
-
-===================================================================================
