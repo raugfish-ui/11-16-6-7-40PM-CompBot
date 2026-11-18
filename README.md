@@ -21,3 +21,36 @@ Issues on Mac with running >WPIlib: simulate Robot Code
   - Issues connecting to the FIRST DriverStation (2027.0.0 alpha-8)
       - No issues regarding FIRST DriverStation itself.
 -------------------------------------------------------------------------------------------------
+
+
+
+###### Edits published on Nov 18 2026
+
+
+
+-------------------------------------------------------------------------------------------------
+           **Updated**
+- Climb.java
+- HorizontalReverseTransfer.java
+- HorizontalTransfer.java
+- IntakeLower.java
+- IntakeRaise.java
+- SubsystemConstants.java
+- Vision.java
+- ClimberSubsystem.java
+- flywheelShooterSubsystem.java
+- MotorHelper.java
+- ShooterSubsystem.java
+- Robot.java
+-------------------------------------------------------------------------------------------------
+          Update Needed
+- AutoBalanceCommand.java
+- AbsoluteDrive.java
+- AbsoluteDriveAdv.java
+- AbsoluteFieldDrive.java
+- VerticalTransferSubsystem.java
+- IntakeSubsystem.java
+- HorizontalTransferSubsystem.java
+- SwerveSubsystem.java
+
+=================================================================================================
