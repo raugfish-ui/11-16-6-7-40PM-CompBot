@@ -1,49 +1,39 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.HorizontalTransferSubsystem;
 import static frc.robot.Constants.HorizontalTransferConstants.*;
 
-/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
+//Command to run the horizontal transfer mechanism in reverse.
+ 
 public class HorizontalReverseTransfer extends Command {
-    /** Creates a new Horizontal Reverse Transfer command. */
 
-    HorizontalTransferSubsystem HTSubsystem;
+    private final HorizontalTransferSubsystem htSubsystem;
 
-    public HorizontalReverseTransfer(HorizontalTransferSubsystem HorizontalSystem) {
-        addRequirements(HorizontalSystem);
-        this.HTSubsystem = HorizontalSystem;
+    // Creates a new HorizontalReverseTransfer command.
+    public HorizontalReverseTransfer(HorizontalTransferSubsystem horizontalSystem) {
+        this.htSubsystem = horizontalSystem;
+        addRequirements(htSubsystem);
     }
-
-    // @Override
-    // public void initialize() {
-    //     HTSubsystem.setHorizontalTransfer(HORIZONTAL_REV_TRANSFER_VOLTAGE);
-    // }
 
     @Override
     public void initialize() {
-      HTSubsystem
-          .setHorizontalReverseTransferVelocity(HORIZONTAL_TRANSFER_REV_VELOCITY);
+        htSubsystem.setHorizontalReverseTransferVelocity(HORIZONTAL_TRANSFER_REV_VELOCITY);
     }
 
-    // Called every time the scheduler runs while the command is scheduled. This
-    // command doesn't require updating any values while running
     @Override
     public void execute() {
+        // Continuous execution is handled by velocity control set in initialize
     }
 
-    // Called once the command ends or is interrupted. Stop the rollers
     @Override
     public void end(boolean interrupted) {
+        // Safely stop the rollers when the command finishes or is interrupted
+        htSubsystem.stop();
     }
 
-    // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return false;
+        return false; // Runs until interrupted or cancelled
     }
 }

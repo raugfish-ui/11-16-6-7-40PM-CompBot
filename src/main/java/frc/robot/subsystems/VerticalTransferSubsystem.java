@@ -15,7 +15,6 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -32,7 +31,6 @@ public class VerticalTransferSubsystem extends SubsystemBase {
 
   /** Creates a new CANBallSubsystem. 
      * @return */
-    @SuppressWarnings("removal")
     public VerticalTransferSubsystem() {
     // create brushed motors for each of the motors on the launcher mechanism
     Vertical_Transfer_1Motor = new SparkFlex(VERTICAL_TRANSFER_1_ID, MotorType.kBrushless);

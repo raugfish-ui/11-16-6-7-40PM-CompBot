@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 
 import com.revrobotics.RelativeEncoder;
@@ -21,26 +17,20 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.ShooterConstants.*;
 
 public class flywheelShooterSubsystem extends SubsystemBase {
-  private final SparkFlex flywheel_leaderMotor;
-  private final SparkFlex flywheel_followerMotor;
-  private final RelativeEncoder flywheelShooterEncoder;
+  private final SparkFlex flywheelLeaderMotor;
+  private final SparkFlex flywheelFollowerMotor;
+  private final RelativeEncoder flywheelEncoder;
   private final SparkClosedLoopController flywheelClosedLoopController;
 
+  /** Creates a new flywheelShooterSubsystem. */
+  public flywheelShooterSubsystem() {
+    flywheelLeaderMotor = new SparkFlex(FLYWHEEL_LEADER_ID, MotorType.kBrushless);
+    flywheelFollowerMotor = new SparkFlex(FLYWHEEL_FOLLOWER_ID, MotorType.kBrushless);
+    
+    flywheelClosedLoopController = flywheelLeaderMotor.getClosedLoopController();
+    flywheelEncoder = flywheelLeaderMotor.getEncoder();
 
-  /** Creates a new CANBallSubsystem. 
-     * @return */
-    @SuppressWarnings("removal")
-    public flywheelShooterSubsystem() {
-    // create brushed motors for each of the motors on the launcher mechanism
-    flywheel_leaderMotor = new SparkFlex(FLYWHEEL_LEADER_ID, MotorType.kBrushless);
-    flywheel_followerMotor = new SparkFlex(FLYWHEEL_FOLLOWER_ID, MotorType.kBrushless);
-    flywheelClosedLoopController = flywheel_leaderMotor.getClosedLoopController();
-
-    flywheelShooterEncoder = flywheel_leaderMotor.getEncoder();
-
-    // create the configuration for the launcher roller, set a current limit, set
-    // the motor to inverted so that positive values are used for both intaking and
-    // launching, and apply the config to the controller
+    // Configure Leader Motor
     SparkFlexConfig flywheelConfig = new SparkFlexConfig();
     flywheelConfig.inverted(false);
     flywheelConfig.idleMode(IdleMode.kCoast);
@@ -48,62 +38,80 @@ public class flywheelShooterSubsystem extends SubsystemBase {
 
     flywheelConfig.encoder.positionConversionFactor(1.0);
     flywheelConfig.encoder.velocityConversionFactor(1.0);
+    
     flywheelConfig.closedLoop
-      .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-      // Set PID values for velocity control in slot 0
-      .p(FLYWHEEL_MOTOR_P, ClosedLoopSlot.kSlot0) // proportional
-      .i(FLYWHEEL_MOTOR_I, ClosedLoopSlot.kSlot0) // integral
-      .d(FLYWHEEL_MOTOR_D, ClosedLoopSlot.kSlot0) // derivitave
-      .outputRange(-1, 1, ClosedLoopSlot.kSlot0);
-    // for testnig limit switch input
+        .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+        .p(FLYWHEEL_MOTOR_P, ClosedLoopSlot.kSlot0)
+        .i(FLYWHEEL_MOTOR_I, ClosedLoopSlot.kSlot0)
+        .d(FLYWHEEL_MOTOR_D, ClosedLoopSlot.kSlot0)
+        .outputRange(-1.0, 1.0, ClosedLoopSlot.kSlot0);
+
     flywheelConfig.softLimit
-      .forwardSoftLimit(FLYWHEEL_MOTOR_FWD_LIMIT)
-      .forwardSoftLimitEnabled(false)
-      .reverseSoftLimit(FLYWHEEL_MOTOR_REV_LIMIT)
-      .reverseSoftLimitEnabled(false);
+        .forwardSoftLimit(FLYWHEEL_MOTOR_FWD_LIMIT)
+        .forwardSoftLimitEnabled(false)
+        .reverseSoftLimit(FLYWHEEL_MOTOR_REV_LIMIT)
+        .reverseSoftLimitEnabled(false);
 
-    flywheel_leaderMotor.configure(flywheelConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    flywheelLeaderMotor.configure(flywheelConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
+    // Configure Follower Motor
+    SparkFlexConfig flywheelFollowerConfig = new SparkFlexConfig();
+    flywheelFollowerConfig.inverted(false);
+    flywheelFollowerConfig.idleMode(IdleMode.kCoast);
+    flywheelFollowerConfig.smartCurrentLimit(FLYWHEEL_SHOOTER_CURRENT_LIMIT);
+    flywheelFollowerConfig.follow(FLYWHEEL_LEADER_ID);
+    
+    flywheelFollowerMotor.configure(flywheelFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    SparkFlexConfig flywheelfollowerConfig = new SparkFlexConfig();
-    flywheelfollowerConfig.inverted(false);
-    flywheelfollowerConfig.idleMode(IdleMode.kCoast);
-    flywheelfollowerConfig.smartCurrentLimit(FLYWHEEL_SHOOTER_CURRENT_LIMIT);
-    flywheelfollowerConfig.follow(FLYWHEEL_LEADER_ID);
-    flywheel_followerMotor.configure(flywheelfollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-    // put default values for various fuel operations onto the dashboard
-    // all commands using this subsystem pull values from the dashbaord to allow
-    // you to tune the values easily, and then replace the values in Constants.java
-    // with your new values. For more information, see the Software Guide.
-    SmartDashboard.putNumber("flywheel Shooter value", SHOOTER_FLYWHEEL_VOLTAGE);
+    // Initialize dashboard target value
+    SmartDashboard.putNumber("Flywheel/TargetVoltage", SHOOTER_FLYWHEEL_VOLTAGE);
   }
-  // A method to set the voltage of the intake roller
+
+  /** Sets the voltage of the flywheel shooter. */
+  public void setFlywheelVoltage(double voltage) {
+    flywheelLeaderMotor.setVoltage(voltage);
+  }
+
+  /** Legacy alias for backward compatibility with existing commands. */
   public void setflywheelShooter(double voltage) {
-    flywheel_leaderMotor.setVoltage(voltage);
+    setFlywheelVoltage(voltage);
   }
 
-  public void setflywheelShooterVelocity(double velocity) {
+  /** Runs the flywheel using closed-loop velocity control. */
+  public void setFlywheelVelocity(double velocity) {
     flywheelClosedLoopController.setReference(velocity, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
   }
 
-  public double getflywheelShooterVelocity() {
-    return flywheelShooterEncoder.getVelocity();
+  /** Legacy alias for backward compatibility with Shoot.java. */
+  public void setflywheelShooterVelocity(double velocity) {
+    setFlywheelVelocity(velocity);
   }
 
-  // A method to set the voltage of the intake roller
-  //public void setfeederRoller(double voltage) {
-    //feederRoller.setVoltage(voltage);
-  //}
+  /** Gets the current velocity of the flywheel. */
+  public double getFlywheelVelocity() {
+    return flywheelEncoder.getVelocity();
+  }
 
-  // A method to stop the rollers
+  /** Legacy alias for backward compatibility with existing commands. */
+  public double getflywheelShooterVelocity() {
+    return getFlywheelVelocity();
+  }
+
+  /** Gets the current position of the flywheel encoder. */
+  public double getFlywheelPosition() {
+    return flywheelEncoder.getPosition();
+  }
+
+  /** Stops the flywheel motors. */
   public void stop() {
-    //feederRoller.set(0);
-    flywheel_leaderMotor.set(0);
+    flywheelLeaderMotor.set(0);
   }
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    // Continuously push telemetry data to SmartDashboard for tuning and debugging
+    SmartDashboard.putNumber("Flywheel/Velocity", getFlywheelVelocity());
+    SmartDashboard.putNumber("Flywheel/Leader Current", flywheelLeaderMotor.getOutputCurrent());
+    SmartDashboard.putNumber("Flywheel/Follower Current", flywheelFollowerMotor.getOutputCurrent());
   }
 }

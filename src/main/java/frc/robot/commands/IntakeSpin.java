@@ -4,63 +4,41 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.IntakeSubsystem;
 import static frc.robot.Constants.IntakeConstants.*;
 
-/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
+/**
+ * Command to spin the intake rollers forward to intake game pieces.
+ */
 public class IntakeSpin extends Command {
-  /** Creates a new Intake. */
 
-  IntakeSubsystem intakeSubsystem;
+  private final IntakeSubsystem intakeSubsystem;
 
+  /** Creates a new IntakeSpin command. */
   public IntakeSpin(IntakeSubsystem intakeSystem) {
-    addRequirements(intakeSystem);
     this.intakeSubsystem = intakeSystem;
+    addRequirements(intakeSubsystem);
   }
-
-  // Called when the command is initially scheduled. Set the rollers to the
- // appropriate values for intaking
-  // @Override
-  // public void initialize() {
-  //   intakeSubsystem
-  //       .setIntakeSpin(
-  //           SmartDashboard.getNumber("intake spin value", INTAKE_SPIN_VOLTAGE));  
-  //   }
-
-  // Called every time the scheduler runs while the command is scheduled. This
-  // command doesn't require updating any values while running
-
-  // @Override
-  // public void execute() {
-  // }
-
-  // // Called once the command ends or is interrupted. Stop the rollers
-  // @Override
-  // public void end(boolean interrupted) {
-  // }
-
-  // // Returns true when the command should end.
-  // @Override
-  // public boolean isFinished() {
-  //   return false;
-  // }
-
-
-    // @Override
-    // public void initialize() {
-    //     intakeSubsystem.setIntakeSpin(SmartDashboard.getNumber("intake spin value", INTAKE_SPIN_VOLTAGE));  
-    // }
 
   @Override
   public void initialize() {
-    intakeSubsystem
-        .setintakeSpinVelocity(INTAKE_SPIN_VELOCITY);
+    intakeSubsystem.setintakeSpinVelocity(INTAKE_SPIN_VELOCITY);
   }
 
-    @Override
-    public boolean isFinished() {
-        return false;
-    }
+  @Override
+  public void execute() {
+    // Velocity target is maintained by the SparkMax closed-loop controller
+  }
+
+  @Override
+  public void end(boolean interrupted) {
+    // Safely stop the intake rollers when the command finishes or is interrupted
+    intakeSubsystem.stopRoller();
+  }
+
+  @Override
+  public boolean isFinished() {
+    return false; // Runs until interrupted or cancelled
+  }
 }

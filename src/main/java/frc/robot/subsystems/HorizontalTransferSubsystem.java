@@ -27,7 +27,7 @@ public class HorizontalTransferSubsystem extends SubsystemBase {
 
   /** Creates a new CANBallSubsystem. 
      * @return */
-    @SuppressWarnings("removal")
+ 
     public HorizontalTransferSubsystem() {
     // create brushed motors for each of the motors on the launcher mechanism
     Horizontal_TransferMotor = new SparkFlex(HORIZONTAL_TRANSFER_ID, MotorType.kBrushless);

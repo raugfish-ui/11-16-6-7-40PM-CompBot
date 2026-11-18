@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 
 import com.revrobotics.RelativeEncoder;
@@ -20,91 +16,85 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.ClimberConstants.*;
 
 public class ClimberSubsystem extends SubsystemBase {
-  private final SparkFlex climber_leaderMotor;
-  private final SparkFlex climber_followerMotor;
-  private final RelativeEncoder ClimberEncoder;
-  private final SparkClosedLoopController ClimberClosedLoopController;
+  private final SparkFlex climberLeaderMotor;
+  private final SparkFlex climberFollowerMotor;
+  private final RelativeEncoder climberEncoder;
+  private final SparkClosedLoopController climberClosedLoopController;
 
-  /** Creates a new CANBallSubsystem. 
-     * @return */
-    @SuppressWarnings("removal")
-    public ClimberSubsystem() {
-    // create brushed motors for each of the motors on the launcher mechanism
-    climber_leaderMotor = new SparkFlex(CLIMBER_LEADER_ID, MotorType.kBrushless);
-    climber_followerMotor = new SparkFlex(CLIMBER_FOLLOWER_ID, MotorType.kBrushless);
+  /** Creates a new ClimberSubsystem. */
+  public ClimberSubsystem() {
+    climberLeaderMotor = new SparkFlex(CLIMBER_LEADER_ID, MotorType.kBrushless);
+    climberFollowerMotor = new SparkFlex(CLIMBER_FOLLOWER_ID, MotorType.kBrushless);
 
-    ClimberClosedLoopController = climber_leaderMotor.getClosedLoopController();
-    ClimberEncoder = climber_leaderMotor.getEncoder();
+    climberClosedLoopController = climberLeaderMotor.getClosedLoopController();
+    climberEncoder = climberLeaderMotor.getEncoder();
 
-    // create the configuration for the launcher roller, set a current limit, set
-    // the motor to inverted so that positive values are used for both intaking and
-    // launching, and apply the config to the controller
-    // SparkFlexConfig climberConfig = new SparkFlexConfig();
-    // climberConfig.inverted(false);
-    // climberConfig.smartCurrentLimit(CLIMBER_CURRENT_LIMIT);
-    // climber_leaderMotor.configure(climberConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    // Configure Leader Motor
+    SparkFlexConfig leaderConfig = new SparkFlexConfig();
+    leaderConfig.inverted(true);
+    leaderConfig.smartCurrentLimit(CLIMBER_CURRENT_LIMIT);
 
-    SparkFlexConfig climberConfig = new SparkFlexConfig();
-    climberConfig.inverted(true);
-    climberConfig.smartCurrentLimit(CLIMBER_CURRENT_LIMIT);
+    leaderConfig.encoder.positionConversionFactor(1.0);
+    leaderConfig.encoder.velocityConversionFactor(1.0);
+    
+    leaderConfig.closedLoop
+        .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+        .p(CLIMBER_MOTOR_P, ClosedLoopSlot.kSlot0)
+        .i(CLIMBER_MOTOR_I, ClosedLoopSlot.kSlot0)
+        .d(CLIMBER_MOTOR_D, ClosedLoopSlot.kSlot0)
+        .outputRange(-1.0, 1.0, ClosedLoopSlot.kSlot0);
 
-    climberConfig.encoder.positionConversionFactor(1.0);
-    climberConfig.encoder.velocityConversionFactor(1.0);
- climberConfig.closedLoop
-    .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+    leaderConfig.softLimit
+        .forwardSoftLimit(CLIMBER_MOTOR_FWD_LIMIT)
+        .forwardSoftLimitEnabled(false)
+        .reverseSoftLimit(CLIMBER_MOTOR_REV_LIMIT)
+        .reverseSoftLimitEnabled(false);
 
-      // Set PID values for velocity control in slot 0
-      .p(CLIMBER_MOTOR_P, ClosedLoopSlot.kSlot0) // proportional
-      .i(CLIMBER_MOTOR_I, ClosedLoopSlot.kSlot0) // integral
-      .d(CLIMBER_MOTOR_D, ClosedLoopSlot.kSlot0) // derivitave
-      .outputRange(-1, 1, ClosedLoopSlot.kSlot0);
-    // for testnig limit switch input
-    climberConfig.softLimit
-      .forwardSoftLimit(CLIMBER_MOTOR_FWD_LIMIT)
-      .forwardSoftLimitEnabled(false)
-      .reverseSoftLimit(CLIMBER_MOTOR_REV_LIMIT)
-      .reverseSoftLimitEnabled(false);
+    climberLeaderMotor.configure(leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    climber_leaderMotor.configure(climberConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    // Configure Follower Motor
+    SparkFlexConfig followerConfig = new SparkFlexConfig();
+    followerConfig.inverted(false);
+    followerConfig.smartCurrentLimit(CLIMBER_CURRENT_LIMIT);
+    followerConfig.follow(CLIMBER_LEADER_ID);
+    
+    climberFollowerMotor.configure(followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    SparkFlexConfig climberfollowerConfig = new SparkFlexConfig();
-    climberfollowerConfig.inverted(false);
-    climberfollowerConfig.smartCurrentLimit(CLIMBER_CURRENT_LIMIT);
-    climberfollowerConfig.follow(CLIMBER_LEADER_ID);
-    climber_followerMotor.configure(climberfollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-    // put default values for various fuel operations onto the dashboard
-    // all commands using this subsystem pull values from the dashbaord to allow
-    // you to tune the values easily, and then replace the values in Constants.java
-    // with your new values. For more information, see the Software Guide.
-    SmartDashboard.putNumber("climber value", CLIMBER_VOLTAGE);
-  }
-  // A method to set the voltage of the intake roller
-  public void setClimber(double voltage) {
-    climber_leaderMotor.setVoltage(voltage);
+    // Initialize dashboard tune target
+    SmartDashboard.putNumber("Climber Voltage Target", CLIMBER_VOLTAGE);
   }
 
-  // A method to set the voltage of the intake roller
-  //public void setfeederRoller(double voltage) {
-    //feederRoller.setVoltage(voltage);
-  //}
+  /** Sets the voltage of the climber motors. */
+  public void setClimberVoltage(double voltage) {
+    climberLeaderMotor.setVoltage(voltage);
+  }
 
+  /** Runs the climber using closed-loop velocity control. */
   public void setClimberVelocity(double velocity) {
-    ClimberClosedLoopController.setReference(velocity, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+    climberClosedLoopController.setReference(velocity, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
   }
 
-  public double getcClimberVelocity() {
-    return ClimberEncoder.getVelocity();
+  /** Gets the current velocity of the climber. */
+  public double getClimberVelocity() {
+    return climberEncoder.getVelocity();
   }
 
-  // A method to stop the rollers
+  /** Gets the current position of the climber. */
+  public double getClimberPosition() {
+    return climberEncoder.getPosition();
+  }
+
+  /** Stops the climber motors. */
   public void stop() {
-    //feederRoller.set(0);
-    climber_leaderMotor.set(0);
+    climberLeaderMotor.set(0);
   }
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    // Continuously publish telemetry data for debugging and dashboard tuning
+    SmartDashboard.putNumber("Climber/Velocity", getClimberVelocity());
+    SmartDashboard.putNumber("Climber/Position", getClimberPosition());
+    SmartDashboard.putNumber("Climber/Leader Current", climberLeaderMotor.getOutputCurrent());
+    SmartDashboard.putNumber("Climber/Follower Current", climberFollowerMotor.getOutputCurrent());
   }
 }
